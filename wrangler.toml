@@ -1,10 +1,17 @@
 # Cloudflare Workers configuration for Clutch Arena
-# Deploy using: npx opennextjs-cloudflare && npx wrangler deploy
 
 name = "clutch-arena"
 main = ".open-next/worker.js"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "clutch-arena"
 
 [vars]
 NEXT_PUBLIC_APP_NAME = "Clutch Arena"
@@ -12,34 +19,6 @@ NEXT_PUBLIC_SUPABASE_URL = "https://onfgfxcpqcynkkqfqpqy.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_SRxOUkOGAHCAvuUDAD1Saw_srTypo3J"
 NEXT_PUBLIC_APP_URL = "https://clutch-arena.v-sudodev.workers.dev"
 
-# Add secrets via: wrangler secret put SECRET_NAME
+# Add secrets via Cloudflare Dashboard → Settings → Variables
 # Required secrets:
 # - SUPABASE_SERVICE_ROLE_KEY
-# - RAZORPAY_KEY_ID (if using Razorpay)
-# - RAZORPAY_KEY_SECRET
-# - RAZORPAY_WEBHOOK_SECRET
-# - STRIPE_SECRET_KEY (if using Stripe)
-# - STRIPE_WEBHOOK_SECRET
-# - NEXT_PUBLIC_POSTHOG_KEY
-# - NEXT_PUBLIC_SENTRY_DSN
-
-# Static assets
-[site]
-bucket = ".open-next/assets"
-
-# R2 bucket for larger game assets (optional)
-# [[r2_buckets]]
-# binding = "GAME_ASSETS"
-# bucket_name = "clutch-arena-assets"
-
-# Durable Objects for future real-time multiplayer
-# [[durable_objects.bindings]]
-# name = "GAME_ROOMS"
-# class_name = "GameRoom"
-
-# Rate limiting
-# [[unsafe.bindings]]
-# name = "RATE_LIMITER"
-# type = "ratelimit"
-# namespace_id = "1"
-# simple = { limit = 100, period = 60 }
