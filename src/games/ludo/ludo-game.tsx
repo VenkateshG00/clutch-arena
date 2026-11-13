@@ -200,10 +200,10 @@ export function LudoGame({ playerName, playerCount, onGameEnd }: LudoGameProps) 
   return (
     <div
       id="game-root"
-      className="flex min-h-screen flex-wrap items-start justify-center gap-6 bg-[#090B14] p-4 text-[#F8FAFC]"
+      className="flex min-h-[100dvh] flex-col lg:flex-row lg:flex-wrap items-center lg:items-start justify-center gap-4 lg:gap-6 bg-[#090B14] p-3 sm:p-4 text-[#F8FAFC]"
     >
       {/* Board */}
-      <div className="w-full max-w-[580px] flex-shrink-0">
+      <div className="w-full max-w-[min(580px,100%)] flex-shrink-0">
         <LudoBoard
           game={game}
           myPlayerId={MY_ID}
@@ -237,7 +237,7 @@ export function LudoGame({ playerName, playerCount, onGameEnd }: LudoGameProps) 
       </div>
 
       {/* Side panel */}
-      <div className="flex w-full max-w-[280px] flex-col gap-4">
+      <div className="flex w-full max-w-[min(580px,100%)] lg:max-w-[280px] flex-col gap-3 lg:gap-4">
         {/* Turn indicator */}
         <div className="rounded-xl border border-[#1E293B] bg-[#111525] px-4 py-3">
           <div className="flex items-center gap-2">
