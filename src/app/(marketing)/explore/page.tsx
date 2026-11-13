@@ -6,6 +6,7 @@ import {
   Palette,
   BrainCircuit,
   Keyboard,
+  Dice5,
   Timer,
   Star,
   TrendingUp,
@@ -58,6 +59,20 @@ const games = [
     bestScore: 1870,
     topPlayer: "KeyStorm",
   },
+  {
+    id: "ludo",
+    icon: Dice5,
+    title: "Ludo",
+    description:
+      "The classic board game reimagined for competitive play. Roll the dice, race your tokens around the board, and send opponents back to base. Strategic decisions at every turn — do you play safe or go for the capture? Play against smart AI opponents.",
+    difficulty: "Medium",
+    difficultyColor: "bg-arena-warning/10 text-arena-warning border-arena-warning/30",
+    duration: "5 minutes",
+    category: "Strategy",
+    gradient: "from-purple-500 to-indigo-500",
+    bestScore: 980,
+    topPlayer: "DiceMaster",
+  },
 ];
 
 export default function GamesPage() {
@@ -81,7 +96,7 @@ export default function GamesPage() {
             Choose Your <span className="text-gradient-primary">Arena</span>
           </h1>
           <p className="mt-4 text-lg text-arena-text-muted max-w-xl mx-auto">
-            Three unique games, each testing a different skill. Master them all and claim the top rank.
+            Four unique games, each testing a different skill. Master them all and claim the top rank.
           </p>
         </motion.div>
 
@@ -128,7 +143,7 @@ export default function GamesPage() {
                     </div>
                     <Button
                       className="bg-gradient-primary hover:opacity-90 text-white font-semibold"
-                      render={<Link href={`/games/${game.id}`} />}
+                      render={<Link href={`/games/play/${game.id}`} />}
                     >
                       Play Now <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>

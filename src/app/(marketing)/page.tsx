@@ -13,6 +13,7 @@ import {
   Palette,
   BrainCircuit,
   Keyboard,
+  Dice5,
   ArrowRight,
   Play,
   Star,
@@ -165,6 +166,14 @@ const games = [
     badge: "Speed",
     duration: "45s",
   },
+  {
+    icon: Dice5,
+    title: "Ludo",
+    desc: "Classic board game reimagined. Roll dice, race tokens, capture opponents. Strategy meets luck.",
+    color: "from-purple-500 to-indigo-500",
+    badge: "Strategy",
+    duration: "5m",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -262,7 +271,7 @@ export default function LandingPage() {
 
             {/* Floating game preview cards */}
             <Reveal delay={0.5} className="mt-16 w-full max-w-4xl">
-              <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {games.map((game, i) => (
                   <motion.div
                     key={game.title}
@@ -347,11 +356,11 @@ export default function LandingPage() {
               Choose Your <span className="text-gradient-primary">Battlefield</span>
             </h2>
             <p className="mt-4 text-arena-text-muted max-w-xl mx-auto">
-              Three distinct games, each testing a different skill. Master all three to earn the ultimate rank.
+              Four distinct games, each testing a different skill. Master them all to earn the ultimate rank.
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {games.map((game, i) => (
               <Reveal key={game.title} delay={i * 0.1}>
                 <div className="group relative overflow-hidden rounded-2xl border border-arena-border bg-arena-surface game-card-hover h-full flex flex-col">
@@ -405,7 +414,7 @@ export default function LandingPage() {
             {[
               { value: 10000, suffix: "+", label: "Active Players", icon: Users, prefix: "" },
               { value: 50000, suffix: "+", label: "Games Played", icon: Gamepad2, prefix: "" },
-              { value: 3, suffix: "", label: "Mini-Games", icon: Trophy, prefix: "" },
+              { value: 4, suffix: "", label: "Mini-Games", icon: Trophy, prefix: "" },
             ].map((stat, i) => (
               <Reveal key={stat.label} delay={i * 0.1}>
                 <div className="relative rounded-xl border border-arena-border bg-arena-surface p-8 text-center game-card-hover">

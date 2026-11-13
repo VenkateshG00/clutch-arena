@@ -1,23 +1,22 @@
 import Link from "next/link";
-import { Gamepad2, Globe, MessageCircle, Mail } from "lucide-react";
+import { Gamepad2, Globe, Mail } from "lucide-react";
 
 const footerLinks = {
   Product: [
     { label: "Games", href: "/explore" },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Tournaments", href: "#" },
+    { label: "Daily Challenge", href: "/daily-challenge" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
   ],
-  Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Cookie Policy", href: "#" },
+  Games: [
+    { label: "Color Snap", href: "/games/play/color-snap" },
+    { label: "Memory Matrix", href: "/games/play/memory-matrix" },
+    { label: "TypeClash", href: "/games/play/typeclash" },
+    { label: "Ludo", href: "/games/play/ludo" },
   ],
 };
 
@@ -40,15 +39,15 @@ export function MarketingFooter() {
               The ultimate competitive gaming platform. Quick games, global rankings, daily rewards.
             </p>
             <div className="flex gap-3 mt-4">
-              <a href="#" className="text-arena-text-muted hover:text-arena-primary transition-colors">
-                <MessageCircle className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-arena-text-muted hover:text-arena-primary transition-colors">
+              <span className="text-arena-text-muted">
+                <Gamepad2 className="h-5 w-5" />
+              </span>
+              <span className="text-arena-text-muted">
                 <Globe className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-arena-text-muted hover:text-arena-primary transition-colors">
+              </span>
+              <span className="text-arena-text-muted">
                 <Mail className="h-5 w-5" />
-              </a>
+              </span>
             </div>
           </div>
 
@@ -76,7 +75,7 @@ export function MarketingFooter() {
 
         <div className="border-t border-arena-border py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-arena-text-muted">
-            &copy; 2024 Clutch Arena. All rights reserved.
+            &copy; 2025 Clutch Arena. All rights reserved.
           </p>
           <p className="text-xs text-arena-text-muted">
             Made with passion for gamers everywhere.
