@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A78BFA">
+        <animate attributeName="stop-color" values="#A78BFA;#C4B5FD;#A78BFA" dur="2s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#7C3AED">
+        <animate attributeName="stop-color" values="#7C3AED;#8B5CF6;#7C3AED" dur="2s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <filter id="pulse">
+      <feDropShadow dx="0" dy="0" stdDeviation="1" flood-color="#8B5CF6" flood-opacity="0.6">
+        <animate attributeName="stdDeviation" values="1;2.5;1" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="flood-opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite"/>
+      </feDropShadow>
+    </filter>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#bg)"/>
+  <rect width="32" height="32" rx="7" fill="url(#glow)" opacity="0.3">
+    <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2s" repeatCount="indefinite"/>
+  </rect>
+  <text x="16" y="20.5" font-family="system-ui,-apple-system,sans-serif" font-size="13" font-weight="800" fill="white" text-anchor="middle" filter="url(#pulse)">CA</text>
+</svg>
