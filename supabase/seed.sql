@@ -50,7 +50,8 @@ VALUES
     'Roll a 6 to bring tokens out of base. Move tokens clockwise around the board. Land on opponent tokens to send them back. Get all 4 tokens to the finish to win. Rolling a 6 gives you an extra turn.',
     '/images/games/ludo.webp',
     true
-  );
+  )
+ON CONFLICT (slug) DO NOTHING;
 
 -- =========================
 -- Achievements
@@ -136,4 +137,5 @@ VALUES
     'target',
     250,
     'gameplay'
-  );
+  )
+ON CONFLICT (slug) DO NOTHING;
