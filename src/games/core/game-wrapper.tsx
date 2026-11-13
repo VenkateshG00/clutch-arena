@@ -18,6 +18,7 @@ type WrapperPhase = 'info' | 'countdown' | 'playing' | 'finished'
 interface GameWrapperProps {
   gameDefinition: GameDefinition
   personalBest: number
+  challengeId?: string
   onGameEnd?: (result: GameResult) => void
   children: (props: {
     config: GameConfig
@@ -29,6 +30,7 @@ interface GameWrapperProps {
 export function GameWrapper({
   gameDefinition,
   personalBest: initialPersonalBest,
+  challengeId,
   onGameEnd,
   children,
 }: GameWrapperProps) {
@@ -51,14 +53,34 @@ export function GameWrapper({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleStart = useCallback(() => {
+  const handleStart = useCallback(async () => {
     store.setScore(0)
     store.setCombo(0)
     store.setResult(null)
     store.setTimeRemaining(gameDefinition.defaultDuration)
     store.setGameState('countdown')
     setPhase('countdown')
-  }, [store, gameDefinition.defaultDuration])
+
+    // Create a session if one doesn't exist
+    if (!store.sessionId) {
+      try {
+        const res = await fetch('/api/sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gameId: gameDefinition.id,
+            challengeId: challengeId ?? undefined,
+          }),
+        })
+        if (res.ok) {
+          const { data } = await res.json()
+          store.setSessionId(data.id)
+        }
+      } catch {
+        // Non-critical — game still works
+      }
+    }
+  }, [store, gameDefinition.defaultDuration, gameDefinition.id, challengeId])
 
   const handleCountdownComplete = useCallback(() => {
     startTimeRef.current = Date.now()

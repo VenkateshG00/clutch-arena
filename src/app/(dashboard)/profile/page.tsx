@@ -16,8 +16,18 @@ import {
   Camera,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { createClient } from '@/lib/supabase/client'
+import { GAMES } from '@/lib/constants'
 import { RANK_TIERS, getXPForNextRank } from '@/types/game'
 import type { Achievement, UserAchievement } from '@/types/database'
+
+interface RecentScore {
+  id: string
+  score: number
+  game_id: string
+  is_personal_best: boolean
+  created_at: string
+}
 import { cn } from 'cn'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -42,6 +52,18 @@ const container = {
 const item = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
+}
+
+function formatTimeAgo(dateStr: string): string {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+  if (seconds < 60) return 'Just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString()
 }
 
 function ProfileSkeleton() {
@@ -81,6 +103,7 @@ export default function ProfilePage() {
   const { profile, isLoading: authLoading } = useAuthStore()
   const [achievements, setAchievements] = useState<AchievementWithStatus[]>([])
   const [gameStats, setGameStats] = useState<Record<string, number>>({})
+  const [recentScores, setRecentScores] = useState<RecentScore[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -88,9 +111,20 @@ export default function ProfilePage() {
     setLoading(true)
     setError(null)
     try {
-      const [achievementsRes, statsRes] = await Promise.allSettled([
+      const supabase = createClient()
+      const [achievementsRes, statsRes, scoresRes] = await Promise.allSettled([
         fetch('/api/achievements'),
         fetch('/api/profile/stats'),
+        supabase.auth.getUser().then(async ({ data: { user } }) => {
+          if (!user) return null
+          const { data } = await supabase
+            .from('scores')
+            .select('id, score, game_id, is_personal_best, created_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(8)
+          return data
+        }),
       ])
 
       if (achievementsRes.status === 'fulfilled' && achievementsRes.value.ok) {
@@ -101,6 +135,10 @@ export default function ProfilePage() {
       if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
         const data = await statsRes.value.json()
         setGameStats(data.stats ?? {})
+      }
+
+      if (scoresRes.status === 'fulfilled' && scoresRes.value) {
+        setRecentScores(scoresRes.value as RecentScore[])
       }
     } catch {
       setError('Failed to load profile data. Please try again.')
@@ -298,13 +336,42 @@ export default function ProfilePage() {
         {/* Recent Activity */}
         <motion.div variants={item}>
           <h2 className="mb-4 text-lg font-semibold text-[#F8FAFC]">Recent Activity</h2>
-          <Card className="border-0 bg-[#111525]">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <Clock className="mb-3 size-12 text-[#94A3B8]/30" />
-              <p className="text-[#94A3B8]">Activity timeline coming soon</p>
-              <p className="text-xs text-[#94A3B8]/60">Your recent games and achievements will appear here.</p>
-            </CardContent>
-          </Card>
+          {recentScores.length === 0 ? (
+            <Card className="border-0 bg-[#111525]">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <Clock className="mb-3 size-12 text-[#94A3B8]/30" />
+                <p className="text-[#94A3B8]">No recent activity</p>
+                <p className="text-xs text-[#94A3B8]/60">Play some games to see your activity here.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {recentScores.map((entry) => {
+                const game = GAMES.find((g) => g.id === entry.game_id)
+                const timeAgo = formatTimeAgo(entry.created_at)
+                return (
+                  <Card key={entry.id} className="border-0 bg-[#111525]">
+                    <CardContent className="flex items-center gap-3 py-3">
+                      <div className="text-2xl">{game?.icon ?? '🎮'}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#F8FAFC] truncate">{game?.name ?? 'Game'}</p>
+                        <p className="text-xs text-[#94A3B8]">{timeAgo}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {entry.is_personal_best && (
+                          <Badge className="bg-amber-400/10 text-amber-400 border-0 text-[10px]">PB</Badge>
+                        )}
+                        <span className="flex items-center gap-1 text-sm font-semibold text-[#F8FAFC]">
+                          <Star className="size-3.5 text-amber-400" />
+                          {entry.score.toLocaleString()}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </div>

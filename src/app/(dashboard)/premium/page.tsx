@@ -59,8 +59,34 @@ export default function PremiumPage() {
     }
   }, [toast])
 
-  const handleUpgrade = (plan: string) => {
-    setToast('Coming soon! Payment integration is not available yet.')
+  const [upgradeLoading, setUpgradeLoading] = useState<string | null>(null)
+
+  const handleUpgrade = async (plan: string) => {
+    setUpgradeLoading(plan)
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, interval: isAnnual ? 'annual' : 'monthly' }),
+      })
+
+      const json = await res.json()
+
+      if (!res.ok) {
+        setToast(json.error || 'Failed to start subscription')
+        return
+      }
+
+      if (json.data?.sessionUrl) {
+        window.location.href = json.data.sessionUrl
+      } else {
+        setToast('Payment provider did not return a checkout URL. Please check your payment configuration.')
+      }
+    } catch {
+      setToast('Something went wrong. Please try again.')
+    } finally {
+      setUpgradeLoading(null)
+    }
   }
 
   const formatPrice = (amount: number) => {
@@ -114,10 +140,9 @@ export default function PremiumPage() {
                     )}
                   </div>
                 </div>
-                <Button variant="outline" className="border-[#181D30] text-[#F8FAFC] hover:bg-[#181D30]">
-                  <CreditCard className="size-3.5 mr-1.5" />
-                  Manage Subscription
-                </Button>
+                <Badge className="bg-[#22C55E]/10 text-[#22C55E] border-0 text-xs">
+                  Active
+                </Badge>
               </CardContent>
             </Card>
           </motion.div>
@@ -212,30 +237,18 @@ export default function PremiumPage() {
                         ))}
                       </ul>
                       <div className="mt-6">
-                        {isCurrentPlan ? (
+                        {isCurrentPlan || key === 'free' ? (
                           <Button disabled className="w-full bg-[#181D30] text-[#94A3B8] cursor-default">
-                            Current Plan
-                          </Button>
-                        ) : key === 'free' && currentPlan !== 'free' ? (
-                          <Button
-                            variant="outline"
-                            className="w-full border-[#181D30] text-[#F8FAFC] hover:bg-[#181D30]"
-                            onClick={() => handleUpgrade(key)}
-                          >
-                            Downgrade
+                            {isCurrentPlan ? 'Current Plan' : 'Free Forever'}
                           </Button>
                         ) : (
                           <Button
-                            className="w-full text-white font-medium"
-                            style={{ backgroundColor: color }}
-                            onClick={() => handleUpgrade(key)}
+                            disabled
+                            className="w-full text-white/70 font-medium cursor-not-allowed"
+                            style={{ backgroundColor: `${color}80` }}
                           >
                             <Sparkles className="size-4 mr-1.5" />
-                            {currentPlan !== 'free' && key !== 'free'
-                              ? key === 'pro'
-                                ? 'Upgrade to Pro'
-                                : 'Change to Plus'
-                              : `Get ${plan.name}`}
+                            Coming Soon
                           </Button>
                         )}
                       </div>

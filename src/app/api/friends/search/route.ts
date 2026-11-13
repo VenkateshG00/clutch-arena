@@ -1,9 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
-import { jsonResponse, errorResponse } from '@/lib/api-utils'
+import { jsonResponse, errorResponse, requireAuth } from '@/lib/api-utils'
 
 export async function GET(request: Request) {
   try {
     const supabase = await createClient()
+
+    const { response } = await requireAuth(supabase)
+    if (response) return response
+
     const url = new URL(request.url)
     const query = url.searchParams.get('q')
 

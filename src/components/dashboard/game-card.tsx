@@ -83,7 +83,7 @@ export function GameCard({
         <Button
           className="mt-3 w-full gap-2 bg-gradient-primary text-white text-xs h-8"
           onClick={() => {
-            window.location.href = `/games/${slug}`
+            window.location.href = `/games/play/${slug}`
           }}
         >
           <Play className="size-3.5" />

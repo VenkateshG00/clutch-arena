@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Gamepad2,
@@ -8,39 +9,44 @@ import {
   Award,
   Trophy,
   Clock,
+  Star,
+  Zap,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { createClient } from '@/lib/supabase/client'
+import { GAMES } from '@/lib/constants'
 import { StatCard } from '@/components/dashboard/stat-card'
 import { GameCard } from '@/components/dashboard/game-card'
 import { RankCard } from '@/components/dashboard/rank-card'
 import { DailyChallengeCard } from '@/components/dashboard/daily-challenge-card'
 
-const featuredGames = [
-  {
-    name: 'Reaction Blitz',
-    category: 'reaction' as const,
-    difficulty: 'medium' as const,
-    duration: 30,
-    bestScore: 4250,
-    slug: 'reaction-blitz',
-  },
-  {
-    name: 'Memory Matrix',
-    category: 'memory' as const,
-    difficulty: 'hard' as const,
-    duration: 60,
-    bestScore: 1800,
-    slug: 'memory-matrix',
-  },
-  {
-    name: 'Speed Typer',
-    category: 'typing' as const,
-    difficulty: 'easy' as const,
-    duration: 60,
-    bestScore: 3100,
-    slug: 'speed-typer',
-  },
-]
+interface RecentScore {
+  id: string
+  score: number
+  game_id: string
+  is_personal_best: boolean
+  created_at: string
+}
+
+const featuredGames = GAMES.slice(0, 3).map((g) => ({
+  name: g.name,
+  category: g.category,
+  difficulty: g.difficulty,
+  duration: g.duration,
+  slug: g.slug,
+}))
+
+function getTimeAgo(dateStr: string): string {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+  if (seconds < 60) return 'Just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString()
+}
 
 function DashboardSkeleton() {
   return (
@@ -74,6 +80,32 @@ function DashboardSkeleton() {
 
 export default function DashboardPage() {
   const { profile, isLoading } = useAuthStore()
+  const [recentScores, setRecentScores] = useState<RecentScore[]>([])
+  const [activityLoading, setActivityLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchRecentActivity() {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data } = await supabase
+          .from('scores')
+          .select('id, score, game_id, is_personal_best, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (data) setRecentScores(data)
+      } catch {
+        // silently fail
+      } finally {
+        setActivityLoading(false)
+      }
+    }
+    fetchRecentActivity()
+  }, [])
 
   if (isLoading) {
     return <DashboardSkeleton />
@@ -172,20 +204,64 @@ export default function DashboardPage() {
         >
           Recent Activity
         </motion.h2>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65 }}
-          className="mt-3 flex flex-col items-center justify-center rounded-xl border border-dashed border-arena-border bg-arena-surface/50 py-12"
-        >
-          <div className="flex size-12 items-center justify-center rounded-full bg-arena-surface-2">
-            <Clock className="size-6 text-arena-text-muted" />
+
+        {activityLoading ? (
+          <div className="mt-3 space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-16 animate-pulse rounded-xl bg-arena-surface" />
+            ))}
           </div>
-          <p className="mt-3 text-sm font-medium text-arena-text-muted">No recent activity</p>
-          <p className="mt-1 text-xs text-arena-text-muted/70">
-            Play some games to see your activity here
-          </p>
-        </motion.div>
+        ) : recentScores.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 }}
+            className="mt-3 flex flex-col items-center justify-center rounded-xl border border-dashed border-arena-border bg-arena-surface/50 py-12"
+          >
+            <div className="flex size-12 items-center justify-center rounded-full bg-arena-surface-2">
+              <Clock className="size-6 text-arena-text-muted" />
+            </div>
+            <p className="mt-3 text-sm font-medium text-arena-text-muted">No recent activity</p>
+            <p className="mt-1 text-xs text-arena-text-muted/70">
+              Play some games to see your activity here
+            </p>
+          </motion.div>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {recentScores.map((entry, i) => {
+              const game = GAMES.find((g) => g.id === entry.game_id)
+              const timeAgo = getTimeAgo(entry.created_at)
+              return (
+                <motion.div
+                  key={entry.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.65 + i * 0.05 }}
+                  className="flex items-center gap-3 rounded-xl border border-arena-border bg-arena-surface px-4 py-3"
+                >
+                  <div className="text-2xl">{game?.icon ?? '🎮'}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-arena-text truncate">
+                      {game?.name ?? 'Unknown Game'}
+                    </p>
+                    <p className="text-xs text-arena-text-muted">{timeAgo}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {entry.is_personal_best && (
+                      <span className="flex items-center gap-0.5 rounded-full bg-arena-warning/15 px-2 py-0.5 text-[10px] font-semibold text-arena-warning">
+                        <Zap className="size-3" /> PB
+                      </span>
+                    )}
+                    <div className="flex items-center gap-1 text-sm font-semibold text-arena-text">
+                      <Star className="size-3.5 text-arena-warning" />
+                      {entry.score.toLocaleString()}
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

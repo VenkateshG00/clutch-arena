@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { GameWrapper } from '@/games/core/game-wrapper'
 import MemoryMatrix from '@/games/memory-matrix'
 import type { GameDefinition, GameResult } from '@/types/game'
@@ -26,10 +27,19 @@ const GAME_DEFINITION: GameDefinition = {
 }
 
 export default function MemoryMatrixPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[100dvh] items-center justify-center bg-[#090B14]"><div className="h-8 w-8 animate-spin rounded-full border-2 border-[#8B5CF6] border-t-transparent" /></div>}>
+      <MemoryMatrixInner />
+    </Suspense>
+  )
+}
+
+function MemoryMatrixInner() {
+  const searchParams = useSearchParams()
+  const challengeId = searchParams.get('challengeId') ?? undefined
   const { setPersonalBest } = useGameStore()
   const [personalBest, setLocalPersonalBest] = useState(0)
 
-  // Fetch personal best on mount
   useEffect(() => {
     async function fetchPersonalBest() {
       try {
@@ -67,6 +77,7 @@ export default function MemoryMatrixPage() {
     <GameWrapper
       gameDefinition={GAME_DEFINITION}
       personalBest={personalBest}
+      challengeId={challengeId}
       onGameEnd={handleGameEnd}
     >
       {({ config, callbacks, isActive }) => (

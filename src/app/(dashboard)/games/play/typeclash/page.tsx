@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { GameWrapper } from '@/games/core/game-wrapper'
 import TypeClash from '@/games/typeclash'
 import type { GameDefinition } from '@/types/game'
@@ -25,6 +26,16 @@ const GAME_DEFINITION: GameDefinition = {
 }
 
 export default function TypeClashPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[100dvh] items-center justify-center bg-[#090B14]"><div className="h-8 w-8 animate-spin rounded-full border-2 border-[#8B5CF6] border-t-transparent" /></div>}>
+      <TypeClashInner />
+    </Suspense>
+  )
+}
+
+function TypeClashInner() {
+  const searchParams = useSearchParams()
+  const challengeId = searchParams.get('challengeId') ?? undefined
   const { setPersonalBest } = useGameStore()
   const [personalBest, setLocalPB] = useState(0)
 
@@ -61,6 +72,7 @@ export default function TypeClashPage() {
     <GameWrapper
       gameDefinition={GAME_DEFINITION}
       personalBest={personalBest}
+      challengeId={challengeId}
     >
       {({ config, callbacks, isActive }) => (
         <TypeClash config={config} callbacks={callbacks} />

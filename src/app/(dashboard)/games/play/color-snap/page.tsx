@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { GameWrapper } from '@/games/core/game-wrapper'
 import { ColorSnap } from '@/games/color-snap'
 import { useGameSession } from '@/hooks/use-game-session'
@@ -21,6 +23,16 @@ const COLOR_SNAP_DEFINITION: GameDefinition = {
 }
 
 export default function ColorSnapPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[100dvh] items-center justify-center bg-[#090B14]"><div className="h-8 w-8 animate-spin rounded-full border-2 border-[#8B5CF6] border-t-transparent" /></div>}>
+      <ColorSnapInner />
+    </Suspense>
+  )
+}
+
+function ColorSnapInner() {
+  const searchParams = useSearchParams()
+  const challengeId = searchParams.get('challengeId') ?? undefined
   const [personalBest, setPersonalBest] = useState(0)
   const [loading, setLoading] = useState(true)
   const { createSession } = useGameSession()
@@ -29,7 +41,7 @@ export default function ColorSnapPage() {
     async function init() {
       try {
         // Create game session
-        await createSession(GAME_INFO.id)
+        await createSession(GAME_INFO.id, challengeId)
 
         // Fetch personal best
         const res = await fetch('/api/scores?gameId=color-snap&best=true')
@@ -66,6 +78,7 @@ export default function ColorSnapPage() {
     <GameWrapper
       gameDefinition={COLOR_SNAP_DEFINITION}
       personalBest={personalBest}
+      challengeId={challengeId}
       onGameEnd={handleGameEnd}
     >
       {({ config, callbacks, isActive }) => (

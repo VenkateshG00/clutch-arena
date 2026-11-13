@@ -1,7 +1,7 @@
 import type { PaymentProviderAdapter, WebhookEvent } from './index'
 import type { SubscriptionPlan } from '@/types/database'
 import { getPlanPricing } from './index'
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 export class StripeAdapter implements PaymentProviderAdapter {
   private secretKey: string
