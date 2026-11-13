@@ -9,10 +9,6 @@ compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 directory = ".open-next/assets"
 binding = "ASSETS"
 
-[[services]]
-binding = "WORKER_SELF_REFERENCE"
-service = "clutch-arena"
-
 [vars]
 NEXT_PUBLIC_APP_NAME = "Clutch Arena"
 NEXT_PUBLIC_SUPABASE_URL = "https://onfgfxcpqcynkkqfqpqy.supabase.co"
