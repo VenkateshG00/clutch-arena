@@ -8,11 +8,12 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 NEXT_PUBLIC_APP_NAME = "Clutch Arena"
+NEXT_PUBLIC_SUPABASE_URL = "https://onfgfxcpqcynkkqfqpqy.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_SRxOUkOGAHCAvuUDAD1Saw_srTypo3J"
+NEXT_PUBLIC_APP_URL = "https://clutch-arena.v-sudodev.workers.dev"
 
 # Add secrets via: wrangler secret put SECRET_NAME
 # Required secrets:
-# - NEXT_PUBLIC_SUPABASE_URL
-# - NEXT_PUBLIC_SUPABASE_ANON_KEY
 # - SUPABASE_SERVICE_ROLE_KEY
 # - RAZORPAY_KEY_ID (if using Razorpay)
 # - RAZORPAY_KEY_SECRET
