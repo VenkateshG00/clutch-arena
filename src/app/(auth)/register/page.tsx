@@ -65,8 +65,9 @@ export default function RegisterPage() {
       }
 
       setEmailSent(true)
-    } catch {
-      setError('An unexpected error occurred. Please try again.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.'
+      setError(msg)
     } finally {
       setLoading(false)
     }
